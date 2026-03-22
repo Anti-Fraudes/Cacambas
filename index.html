@@ -2054,24 +2054,23 @@ I9. GOOGLE MAPS: (perfil verificado? nota? avaliações? última avaliação? re
 I10. HISTÓRICO DO NOME: (empresa encontrada antes de 2024 em outros canais? onde?)`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: promptAuto }]
+        contents: [{ parts: [{ text: promptAuto }] }],
+        tools: [{ google_search: {} }]
       })
     });
 
-    if(!resp.ok) throw new Error('API error: '+resp.status);
+    if(!resp.ok) throw new Error('Gemini error: '+resp.status);
     const data = await resp.json();
 
-    // Extrair texto da resposta
-    const textos = (data.content||[])
-      .filter(b=>b.type==='text')
-      .map(b=>b.text)
+    // Extrair texto da resposta Gemini
+    const textos = (data.candidates||[])
+      .flatMap(c => (c.content?.parts||[]))
+      .filter(p => p.text)
+      .map(p => p.text)
       .join('\n');
 
     autoResultadoBruto = resultadoCompleto + '\n' + textos;
@@ -3745,6 +3744,7 @@ function showToast(m,d=2400){
 // ── SUPABASE CONFIG ───────────────────────────────────────────────────────────
 const SUPA_URL = 'https://edhvzmmpwyizhmaeycox.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkaHZ6bW1wd3lpemhtYWV5Y294Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTEwMjYsImV4cCI6MjA4OTc2NzAyNn0.5TQ0FU7T63CoLJ23O5r5-KRBiAVOtX4VInINQ7lH0xY';
+const GEMINI_KEY = 'AIzaSyCL0EEnH-uafayHlJ71IYIcMn9wCqRTFn0';
 const SUPA_HEADERS = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
 
 // Senha de moderação (hash simples — troque por uma senha sua)
@@ -3792,17 +3792,14 @@ async function monitorAnalisar(){
   btn.disabled = true; btn.textContent = '⏳ Analisando...';
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:monitorImagemBase64}},
-            {type:'text', text:`Esta é uma print de resultados patrocinados do Google para pesquisa de caçambas.
+        contents:[{
+          parts:[
+            {inline_data: {mime_type:'image/jpeg', data:monitorImagemBase64}},
+            {text:`Esta é uma print de resultados patrocinados do Google para pesquisa de caçambas.
 Extraia TODOS os domínios/URLs dos anúncios patrocinados visíveis na imagem.
 Retorne APENAS uma lista JSON no formato:
 {"dominios": ["dominio1.com", "dominio2.com.br", ...]}
@@ -3812,7 +3809,11 @@ Não inclua texto, explicação ou formatação extra. Apenas o JSON.`}
       })
     });
     const data = await resp.json();
-    const txt = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const txt = (data.candidates||[])
+      .flatMap(c=>(c.content?.parts||[]))
+      .filter(p=>p.text)
+      .map(p=>p.text)
+      .join('');
 
     let dominios = [];
     try {
