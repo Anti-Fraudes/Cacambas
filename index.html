@@ -957,39 +957,59 @@ async function verificarAoVivo(){
   document.getElementById('live-score-area').style.display='block';
   setProgress(100);
 
-  // Sincroniza domínio para aba ②
+  // Sincroniza domínio para aba ② e atualiza prompt com dados ao vivo
   document.getElementById('inp-domain-b').value = dominio;
-  updatePrompt();
+  // Pequeno delay para garantir que os campos live já foram preenchidos
+  setTimeout(()=>updatePrompt(), 300);
 }
 
 // ── ABA ② — PROMPT ───────────────────────────────────────────────────────────
-const PROMPT=`Preciso verificar se o site abaixo é legítimo ou golpista no setor de locação de caçambas em SP.
-Pesquise e retorne EXATAMENTE neste formato:
+function gerarPrompt(){
+  // Pega domínio da aba ② ou da aba ①
+  const d = document.getElementById('inp-domain-b').value.trim()
+         || document.getElementById('inp-domain').value.trim()
+         || '[domínio aqui]';
 
-DOMÍNIO: {D}
+  // Dados já verificados ao vivo (se existirem)
+  const criacao    = document.getElementById('live-criacao')?.textContent || '—';
+  const idade      = document.getElementById('live-idade')?.textContent   || '—';
+  const archive    = document.getElementById('live-archive')?.textContent || '—';
+  const registrador= document.getElementById('live-registrador')?.textContent || '—';
 
---- RESULTADO ---
-1. DATA DE CRIAÇÃO DO DOMÍNIO: (pesquise no whois/rdap — data exata)
-2. REGISTRADOR: (empresa que registrou o domínio)
-3. MESES ONLINE: (calcule até hoje — se forem dias, escreva "X dias")
-4. CNPJ NO SITE: (sim/não — qual número)
-5. TELEFONE FIXO: (sim/não — qual)
-6. WHATSAPP: (número completo com DDD)
-7. DENÚNCIAS RECLAME AQUI: (sim/não — quantas reclamações)
-8. PAÍS DO SERVIDOR: (onde está hospedado)
-9. CONTEÚDO DO SITE: (descreva brevemente — é genérico ou tem dados reais da empresa)
+  const temDados = criacao !== '—' && criacao !== 'consultando...' && criacao !== 'Timeout';
 
-Seja objetivo. Se não encontrar algo, escreva: não encontrado`;
+  const dadosVivo = temDados ? `
+--- DADOS JÁ VERIFICADOS AUTOMATICAMENTE (não precisa pesquisar) ---
+✅ Domínio criado em: ${criacao}
+✅ Idade: ${idade}
+✅ Primeira vez no Archive.org: ${archive}
+✅ Registrador: ${registrador}
+` : '';
+
+  return `Preciso verificar se o site abaixo é legítimo ou golpista no setor de locação de caçambas em SP.
+${dadosVivo}
+DOMÍNIO: ${d}
+
+--- COMPLETE APENAS AS INFORMAÇÕES ABAIXO ---
+1. CNPJ NO SITE: (sim/não — qual número)
+2. TELEFONE FIXO: (sim/não — qual)
+3. WHATSAPP: (número completo com DDD)
+4. DENÚNCIAS RECLAME AQUI: (sim/não — quantas reclamações)
+5. PAÍS DO SERVIDOR: (onde está hospedado)
+6. CONTEÚDO DO SITE: (descreva brevemente — é genérico ou tem dados reais da empresa)
+
+Retorne EXATAMENTE neste formato, seja objetivo. Se não encontrar algo escreva: não encontrado`;
+}
 
 function updatePrompt(){
-  const d = document.getElementById('inp-domain-b').value.trim() || '[domínio aqui]';
-  document.getElementById('prompt-txt').textContent = PROMPT.replace('{D}',d);
+  document.getElementById('prompt-txt').textContent = gerarPrompt();
 }
 
 function copyPrompt(){
-  const d = document.getElementById('inp-domain-b').value.trim();
+  const d = document.getElementById('inp-domain-b').value.trim()
+         || document.getElementById('inp-domain').value.trim();
   if(!d){ showToast('Digite o domínio primeiro!'); return; }
-  navigator.clipboard.writeText(PROMPT.replace('{D}',d)).then(()=>showToast('✓ Prompt copiado!'));
+  navigator.clipboard.writeText(gerarPrompt()).then(()=>showToast('✓ Prompt copiado!'));
 }
 
 // ── PARSER ────────────────────────────────────────────────────────────────────
@@ -1011,8 +1031,23 @@ function parseResult(text){
     else if(/menos.*m[eê]s/i.test(mesesRaw)) mesesNum=0;
     else{ const n=mesesRaw.match(/(\d+)/); mesesNum=n?parseInt(n[1]):999; }
   }
-  return{ domain,mesesRaw,mesesNum,
-    criacao:get(1),registrar:get(2),cnpj:get(4),tel:get(5),wpp:get(6),reclame:get(7),pais:get(8),conteudo:get(9),raw:text };
+  // Tenta pegar dados ao vivo dos campos da aba ①
+  const liveCriacao = document.getElementById('live-criacao')?.textContent || '';
+  const liveIdade   = document.getElementById('live-idade')?.textContent   || '';
+
+  // Meses — tenta do live primeiro, depois do texto colado
+  let mesesNumFinal = mesesNum;
+  if(mesesNumFinal===999 && liveIdade){
+    const n = liveIdade.match(/(\d+)\s*mês/i);
+    if(n) mesesNumFinal = parseInt(n[1]);
+    if(/dia/i.test(liveIdade)) mesesNumFinal = 0;
+  }
+
+  return{ domain, mesesRaw: mesesRaw || liveIdade, mesesNum: mesesNumFinal,
+    criacao: get(1) || liveCriacao,
+    registrar: get(2),
+    cnpj: get(1), tel: get(2), wpp: get(3), reclame: get(4), pais: get(5), conteudo: get(6),
+    raw: text };
 }
 
 // ── SCORE ─────────────────────────────────────────────────────────────────────
@@ -1023,6 +1058,17 @@ function calcScore(d){
 
   const blHit=bl.find(b=>dom&&(dom===b.toLowerCase()||dom.includes(b.toLowerCase())));
   if(blHit){ s=100; ch.push({t:'bad',msg:`🚫 LISTA NEGRA: ${blHit}`}); return{score:100,checks:ch}; }
+
+  // Se for empresa Diamante — score 0 automático
+  const isDiamante = getDiamante(dom);
+  if(isDiamante){
+    return{score:0, checks:[
+      {t:'ok', msg:'💎 Empresa verificada e auditada pelo FraudeZero'},
+      {t:'ok', msg:'✅ CNPJ ativo confirmado manualmente'},
+      {t:'ok', msg:'✅ Domínio com histórico real e rastreável'},
+      {t:'ok', msg:'✅ Empresa física verificada — existe de verdade'},
+    ]};
+  }
 
   // TLD suspeito
   if(/\.(site|online|click|xyz|top|icu|buzz)$/.test(dom)){ s+=20; ch.push({t:'bad',msg:`TLD descartável (.${dom.split('.').pop()})`}); }
@@ -1474,8 +1520,12 @@ const DIAMANTE = [
 ];
 
 function getDiamante(dominio){
-  const d = dominio.toLowerCase().replace(/^www\./,'');
-  return DIAMANTE.find(x=>d===x.dom.toLowerCase() || d.includes(x.dom.toLowerCase()));
+  const d = dominio.toLowerCase()
+    .replace(/^https?:\/\//,'')
+    .replace(/^www\./,'')
+    .replace(/\/.*$/,'')
+    .trim();
+  return DIAMANTE.find(x=>d===x.dom.toLowerCase() || x.dom.toLowerCase()===d);
 }
 
 function mostrarCardDiamante(empresa){
