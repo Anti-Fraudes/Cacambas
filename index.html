@@ -1315,19 +1315,34 @@ function abrirIframe(dominio){
   document.getElementById('iframe-title').textContent = '🌐 '+dominio;
   document.getElementById('iframe-extlink').href = url;
   document.getElementById('iframe-extlink2').href = url;
+  // Aviso só para sites suspeitos — não para Diamante
+  const isDiamante = getDiamante(dominio);
+  document.getElementById('iframe-warn').style.display = isDiamante ? 'none' : 'block';
   frame.style.display='block';
   blocked.style.display='none';
   frame.src = url;
   frame.onerror = ()=>{ frame.style.display='none'; blocked.style.display='block'; };
-  // Detecta bloqueio por X-Frame-Options (timeout 4s)
-  setTimeout(()=>{
-    try{
-      const fw = frame.contentWindow;
-      if(!fw || !fw.location.href || fw.location.href==='about:blank'){
-        frame.style.display='none'; blocked.style.display='block';
-      }
-    }catch(e){ frame.style.display='none'; blocked.style.display='block'; }
-  },4000);
+  // Para diamante, mostra botão de abrir direto (mais confiável que iframe)
+  if(isDiamante){
+    frame.style.display='none';
+    blocked.style.display='block';
+    document.getElementById('iframe-blocked').innerHTML = `
+      <div style="padding:1.5rem;text-align:center">
+        <div style="font-size:32px;margin-bottom:.75rem">🌐</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);margin-bottom:1rem">Empresa verificada — acesse o site com segurança</div>
+        <a class="iframe-btn" href="${url}" target="_blank" style="background:rgba(0,229,160,.1);border-color:var(--green);color:var(--green);padding:10px 20px;font-size:11px">↗ Abrir ${dominio}</a>
+      </div>`;
+  } else {
+    // Detecta bloqueio por X-Frame-Options (timeout 4s) para sites suspeitos
+    setTimeout(()=>{
+      try{
+        const fw = frame.contentWindow;
+        if(!fw || !fw.location.href || fw.location.href==='about:blank'){
+          frame.style.display='none'; blocked.style.display='block';
+        }
+      }catch(e){ frame.style.display='none'; blocked.style.display='block'; }
+    },4000);
+  }
   wrap.style.display='block';
   iframeAberto=true;
 }
@@ -1434,27 +1449,27 @@ function closeDisclaimer(){
 const DIAMANTE = [
   {
     nome:'CaçambaSP', dom:'cacambasp.com.br', estado:'São Paulo — SP',
-    anos:'17+ anos', site:'https://www.cacambasp.com.br', wpp:'5511999999999',
+    anos:'17+ anos', site:'https://www.cacambasp.com.br', wpp:'551142378757',
     desc:'Referência em locação de caçamba em São Paulo desde 2007. Atende toda a Grande SP com agilidade, preço justo e entrega real. Mais de 300 caçambas por mês. Empresa com CNPJ ativo, endereço verificado e histórico comprovado.',
     checks:['Empresa ativa desde 2007 — 17+ anos de mercado','CNPJ verificado e ativo na Receita Federal','Telefone fixo + WhatsApp DDD 11 — atende SP','Avaliações reais de clientes — sem denúncias','Caçambas de 4m³ — padrão licenciado SP']
   },
   {
-    nome:'Portal Caçambas', dom:'portalcacambas.com', estado:'Nacional',
-    anos:'verificado', site:'https://www.portalcacambas.com', wpp:'5511999999999',
-    desc:'Portal nacional de locação de caçambas com empresas verificadas em todo o Brasil.',
+    nome:'Portal Caçambas', dom:'portalcacambas.com', estado:'São Paulo — SP',
+    anos:'verificado', site:'https://www.portalcacambas.com', wpp:'5511963436452',
+    desc:'Portal de locação de caçambas com empresas verificadas em São Paulo e região.',
     checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal','Atendimento real e comprovado']
   },
   {
     nome:'Caçambas Campo Belo', dom:'cacambascampobelo.com', estado:'São Paulo — SP',
-    anos:'verificado', site:'https://cacambascampobelo.com', wpp:'5511999999999',
-    desc:'Empresa verificada de locação de caçambas em São Paulo.',
-    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal']
+    anos:'verificado', site:'https://www.cacambascampobelo.com', wpp:'5511966275905',
+    desc:'Empresa verificada de locação de caçambas em São Paulo — Campo Belo e região.',
+    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal','Atendimento real e comprovado']
   },
   {
     nome:'Caçamba.com', dom:'xn--caamba-xua.com', estado:'São Paulo — SP',
-    anos:'verificado', site:'https://caçamba.com', wpp:'5511999999999',
-    desc:'Empresa verificada de locação de caçambas.',
-    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal']
+    anos:'verificado', site:'https://www.xn--caamba-xua.com', wpp:'5511939237569',
+    desc:'Empresa verificada de locação de caçambas em São Paulo.',
+    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal','Atendimento real e comprovado']
   },
 ];
 
@@ -1476,7 +1491,8 @@ function mostrarCardDiamante(empresa){
       <span>${ch}</span>
     </div>`).join('');
   document.getElementById('d-link-site').href = empresa.site;
-  document.getElementById('d-link-wpp').href  = 'https://wa.me/'+empresa.wpp;
+  const msgWpp = encodeURIComponent(`Olá! Encontrei vocês no *FraudeZero Antifraude* (anti-fraudes.github.io/Cacambas) e gostaria de solicitar uma caçamba.\n\nPreciso de uma caçamba para o bairro: _[informe seu bairro]_\n\nPodem me passar disponibilidade e valor?`);
+  document.getElementById('d-link-wpp').href  = 'https://wa.me/'+empresa.wpp+'?text='+msgWpp;
   document.getElementById('diamante-overlay').classList.add('show');
 
   // Busca pesquisas reais e avaliações no Supabase
