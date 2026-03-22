@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ferramenta Antifraudes — Verificador de Caçambas v21</title>
+<title>Ferramenta Antifraudes — Verificador de Caçambas v22</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -199,6 +199,142 @@ textarea::placeholder{color:var(--text3)}
 .bl-alert-title{font-size:14px;font-weight:700;color:var(--red);margin-bottom:4px}
 .bl-alert-sub{font-family:var(--mono);font-size:11px;color:#ef9a9a;line-height:1.6}
 
+
+/* ── DIAMANTE ─────────────────────────────────────────── */
+.diamante-section{margin-bottom:1.5rem}
+.diamante-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.5rem}
+.diamante-card{
+  background:linear-gradient(135deg,#1a1f0e,#111a0a);
+  border:1px solid rgba(34,197,94,.25);border-radius:10px;
+  padding:.85rem 1rem;cursor:pointer;transition:all .15s;
+}
+.diamante-card:hover{border-color:rgba(34,197,94,.5);transform:translateY(-1px)}
+.diamante-badge{font-family:var(--mono);font-size:8px;letter-spacing:.15em;color:#22c55e;text-transform:uppercase;margin-bottom:4px}
+.diamante-nome{font-size:12px;font-weight:700;color:#f0f0f0;margin-bottom:2px}
+.diamante-dom{font-family:var(--mono);font-size:9px;color:#6b7280}
+.diamante-stars{font-size:11px;margin-top:4px}
+.diamante-pesq{font-family:var(--mono);font-size:8px;color:#4b7a55;margin-top:2px}
+
+/* ── IFRAME PREVIEW ───────────────────────────────────── */
+.iframe-wrap{
+  margin-top:1rem;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.iframe-header{
+  padding:.6rem 1rem;background:var(--bg4);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.iframe-title{font-family:var(--mono);font-size:10px;color:var(--text2)}
+.iframe-actions{display:flex;gap:6px}
+.iframe-btn{
+  font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:5px;
+  cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);
+  transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:4px;
+}
+.iframe-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+.iframe-warn{
+  font-family:var(--mono);font-size:9px;color:var(--orange);
+  padding:.4rem 1rem;background:rgba(255,140,66,.07);border-bottom:1px solid rgba(255,140,66,.15);
+}
+iframe.site-frame{width:100%;height:420px;border:none;display:block}
+.iframe-blocked{
+  padding:2rem;text-align:center;font-family:var(--mono);font-size:10px;
+  color:var(--text3);line-height:2;display:none;
+}
+
+/* ── AVALIAÇÃO ────────────────────────────────────────── */
+.avalia-section{margin-top:1rem}
+.avalia-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem}
+.avalia-title{font-size:13px;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:6px}
+.avalia-media{
+  display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;
+  padding:.6rem 1rem;background:var(--bg4);border-radius:8px;border:1px solid var(--border);
+}
+.avalia-media-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--yellow);line-height:1}
+.avalia-media-stars{font-size:16px;line-height:1;margin-bottom:2px}
+.avalia-media-sub{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.stars-input{display:flex;gap:6px;margin-bottom:.75rem;font-size:28px;cursor:pointer}
+.star-btn{background:none;border:none;cursor:pointer;font-size:28px;transition:transform .1s;padding:0;line-height:1;filter:grayscale(1);opacity:.4}
+.star-btn.on{filter:none;opacity:1}
+.star-btn:hover{transform:scale(1.15)}
+.avalia-lista{margin-top:.75rem;display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.avalia-item{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem}
+.avalia-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.avalia-item-stars{font-size:12px}
+.avalia-item-data{font-family:var(--mono);font-size:8px;color:var(--text3)}
+.avalia-item-texto{font-family:var(--mono);font-size:10px;color:var(--text2);line-height:1.5}
+
+/* ── CONTADOR ─────────────────────────────────────────── */
+.pesq-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--bg4);border:1px solid var(--border);border-radius:6px;
+  font-family:var(--mono);font-size:9px;color:var(--text3);padding:3px 9px;margin-top:.4rem;
+}
+.pesq-badge strong{color:var(--yellow)}
+
+/* ── RANKING SIDEBAR ──────────────────────────────────── */
+.rank-item{
+  display:flex;align-items:center;gap:8px;padding:5px 8px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:7px;margin-bottom:4px;
+}
+.rank-num{font-family:var(--mono);font-size:9px;color:var(--text3);width:14px;text-align:right;flex-shrink:0}
+.rank-dom{font-family:var(--mono);font-size:10px;color:var(--text);flex:1;word-break:break-all}
+.rank-count{font-family:var(--mono);font-size:9px;color:var(--yellow);flex-shrink:0}
+
+
+/* ── DISCLAIMER ──────────────────────────────────────── */
+.disc-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem}
+.disc-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;max-width:520px;width:100%;padding:2rem;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.disc-icon{font-size:32px;margin-bottom:.75rem}
+.disc-title{font-family:var(--syne);font-size:18px;font-weight:800;margin-bottom:.5rem;color:var(--yellow)}
+.disc-sub{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-bottom:1.25rem}
+.disc-body{font-size:13px;line-height:1.85;color:var(--text2);margin-bottom:1.25rem}
+.disc-body strong{color:var(--text)}
+.disc-body ul{margin:.5rem 0 .5rem 1.25rem}
+.disc-body li{margin-bottom:.35rem}
+.disc-check{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;cursor:pointer;user-select:none}
+.disc-check input{margin-top:2px;accent-color:var(--yellow);flex-shrink:0;width:16px;height:16px;pointer-events:none}
+.disc-check label{font-size:12px;color:var(--text2);line-height:1.5;pointer-events:none}
+.disc-btn{width:100%;padding:.75rem;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text3);cursor:not-allowed;transition:all .2s;text-transform:uppercase}
+.disc-btn.ready{background:var(--yellow);color:#000;border-color:var(--yellow);cursor:pointer}
+.disc-btn.ready:hover{background:var(--yellow2)}
+
+/* ── CARD DIAMANTE ────────────────────────────────────── */
+.diamante-overlay{
+  display:none;
+  background:linear-gradient(135deg,#0d1a0d 0%,#0a110a 100%);
+  border:1px solid rgba(34,197,94,.3);border-radius:16px;
+  overflow:hidden;margin-bottom:1.5rem;
+  animation:fadeIn .3s ease;
+  box-shadow:0 8px 40px rgba(34,197,94,.08);
+}
+.diamante-overlay.show{display:block}
+.diamante-hero{
+  padding:1.75rem;border-bottom:1px solid rgba(34,197,94,.15);
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#132213 0%,#0e180e 100%);
+}
+.diamante-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.1) 0%,transparent 70%)}
+.diamante-selo{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#22c55e;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:.9rem}
+.diamante-nome{font-size:26px;font-weight:800;color:#f0f0f0;margin-bottom:.25rem;position:relative;z-index:1}
+.diamante-estado{font-family:var(--mono);font-size:11px;color:#6b7280;margin-bottom:.75rem}
+.diamante-stats{display:flex;gap:1.5rem;flex-wrap:wrap;position:relative;z-index:1}
+.diamante-stat{text-align:center}
+.diamante-stat-num{font-family:var(--mono);font-size:20px;font-weight:700;color:#22c55e;display:block}
+.diamante-stat-lbl{font-size:10px;color:#6b7280;font-family:var(--mono)}
+.diamante-body{padding:1.5rem}
+.diamante-desc{font-size:14px;color:#d1d5db;line-height:1.8;margin-bottom:1.25rem;border-left:3px solid #22c55e;padding-left:1rem;font-style:italic}
+.diamante-checks{display:flex;flex-direction:column;gap:7px;margin-bottom:1.25rem}
+.diamante-check{display:flex;align-items:center;gap:10px;font-size:13px;color:#d1d5db}
+.diamante-check-icon{width:20px;height:20px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700;flex-shrink:0}
+.diamante-aviso{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-family:var(--mono);font-size:10px;color:#fbbf24;line-height:1.7}
+.diamante-btns{display:flex;gap:8px;flex-wrap:wrap}
+.diamante-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;background:#22c55e;color:#000;border:none;border-radius:10px;font-family:var(--syne);font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(34,197,94,.25)}
+.diamante-cta:hover{background:#16a34a;transform:translateY(-1px)}
+.diamante-cta-wpp{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:10px;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+.diamante-cta-wpp:hover{background:rgba(34,197,94,.2)}
+.diamante-footer{padding:.75rem 1.5rem;background:rgba(0,0,0,.3);border-top:1px solid rgba(34,197,94,.1);font-family:var(--mono);font-size:9px;color:#374151;display:flex;align-items:center;gap:6px}
+
 /* MOBILE */
 @media(max-width:800px){
   .layout{grid-template-columns:1fr}
@@ -209,6 +345,59 @@ textarea::placeholder{color:var(--text3)}
 </style>
 </head>
 <body>
+
+<!-- DISCLAIMER -->
+<div class="disc-overlay" id="disc-overlay">
+  <div class="disc-modal">
+    <div class="disc-icon">⚠️</div>
+    <div class="disc-title">Aviso Importante</div>
+    <div class="disc-sub">Antes de usar esta ferramenta, leia com atenção</div>
+    <div class="disc-body">
+      Esta ferramenta é um <strong>auxiliar de triagem</strong> para identificar indícios de fraude em empresas de locação de caçamba. Ela <strong>não substitui</strong> uma verificação jurídica ou comercial formal.
+      <ul>
+        <li><strong>Dados ao vivo:</strong> As informações são consultadas em tempo real via RDAP e Archive.org. Podem ocorrer falhas ou dados desatualizados.</li>
+        <li><strong>Índice indicativo:</strong> O score é baseado em critérios automatizados. Score alto indica pontos a verificar — não confirma fraude. Score baixo não garante idoneidade.</li>
+        <li><strong>Decisão final:</strong> A responsabilidade pela contratação é sempre do usuário. Esta ferramenta não se responsabiliza por decisões tomadas com base nos resultados.</li>
+        <li><strong>Lista de alertas:</strong> Os domínios listados foram identificados como suspeitos com base em denúncias públicas. Sempre verifique fontes oficiais.</li>
+      </ul>
+    </div>
+    <div class="disc-check" onclick="toggleCheck()">
+      <input type="checkbox" id="disc-cb" onchange="checkReady()" />
+      <label for="disc-cb">Li e compreendi que esta ferramenta é apenas um auxiliar de triagem e que a decisão final de contratar ou não um fornecedor é de minha exclusiva responsabilidade.</label>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding:.5rem .75rem;background:var(--bg3);border-radius:6px;cursor:pointer;user-select:none" onclick="toggleNaoMostrar()">
+      <input type="checkbox" id="disc-nao-mostrar" style="accent-color:var(--yellow);flex-shrink:0;width:15px;height:15px;pointer-events:none" />
+      <label style="font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--mono);pointer-events:none">Não mostrar este aviso novamente neste dispositivo</label>
+    </div>
+    <button class="disc-btn" id="disc-btn" onclick="closeDisclaimer()" disabled>Entendi — Acessar a ferramenta</button>
+  </div>
+</div>
+
+<!-- CARD DIAMANTE (aparece quando pesquisa empresa verificada) -->
+<div class="diamante-overlay" id="diamante-overlay">
+  <div class="diamante-hero">
+    <div class="diamante-selo">💎 Empresa Verificada FraudeZero</div>
+    <div class="diamante-nome" id="d-nome">—</div>
+    <div class="diamante-estado" id="d-estado">—</div>
+    <div class="diamante-stats">
+      <div class="diamante-stat"><span class="diamante-stat-num" id="d-anos">—</span><span class="diamante-stat-lbl">no mercado</span></div>
+      <div class="diamante-stat"><span class="diamante-stat-num" id="d-estrelas">—</span><span class="diamante-stat-lbl">avaliação</span></div>
+      <div class="diamante-stat"><span class="diamante-stat-num" id="d-pesquisas">—</span><span class="diamante-stat-lbl">pesquisas</span></div>
+    </div>
+  </div>
+  <div class="diamante-body">
+    <div class="diamante-desc" id="d-desc">—</div>
+    <div class="diamante-checks" id="d-checks"></div>
+    <div class="diamante-aviso">
+      ⚠️ <strong>Dica de segurança:</strong> Empresas sérias <strong>não pedem PIX antes da entrega</strong> da caçamba. Nunca pague antecipado sem antes receber o serviço. Combine o pagamento somente na entrega.
+    </div>
+    <div class="diamante-btns">
+      <a class="diamante-cta" id="d-link-site" href="#" target="_blank">🌐 Acessar o site</a>
+      <a class="diamante-cta-wpp" id="d-link-wpp" href="#" target="_blank">💬 WhatsApp</a>
+    </div>
+  </div>
+  <div class="diamante-footer">💎 Empresa verificada e auditada pelo FraudeZero · Dados conferidos manualmente</div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -305,6 +494,49 @@ textarea::placeholder{color:var(--text3)}
           </div>
         </div>
       </div>
+
+      <!-- Preview do site -->
+      <div class="iframe-wrap" id="iframe-wrap" style="display:none">
+        <div class="iframe-header">
+          <span class="iframe-title" id="iframe-title">🌐 Carregando site...</span>
+          <div class="iframe-actions">
+            <a class="iframe-btn" id="iframe-extlink" href="#" target="_blank">↗ Abrir</a>
+            <button class="iframe-btn" onclick="toggleIframe()">✕ Fechar</button>
+          </div>
+        </div>
+        <div class="iframe-warn">⚠️ Atenção: este site pode ser um golpe. Não insira dados pessoais ou pagamentos.</div>
+        <iframe class="site-frame" id="site-frame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+        <div class="iframe-blocked" id="iframe-blocked">
+          🚫 Este site bloqueou a exibição em iframe.<br>
+          <a class="iframe-btn" id="iframe-extlink2" href="#" target="_blank" style="margin-top:.5rem;display:inline-flex">↗ Abrir em nova aba</a>
+        </div>
+      </div>
+
+      <!-- Avaliações -->
+      <div class="avalia-section" id="avalia-section" style="display:none">
+        <div class="avalia-card">
+          <div class="avalia-title">⭐ Avaliações de quem usou este serviço</div>
+          <div class="avalia-media" id="avalia-media" style="display:none">
+            <div>
+              <div class="avalia-media-num" id="avalia-media-num">—</div>
+              <div class="avalia-media-stars" id="avalia-media-stars"></div>
+              <div class="avalia-media-sub" id="avalia-media-sub">avaliações</div>
+            </div>
+          </div>
+          <div style="margin-bottom:.5rem;font-family:var(--mono);font-size:10px;color:var(--text3)">Você usou este serviço? Avalie:</div>
+          <div class="stars-input" id="stars-input">
+            <button class="star-btn" onclick="setStar(1)">⭐</button>
+            <button class="star-btn" onclick="setStar(2)">⭐</button>
+            <button class="star-btn" onclick="setStar(3)">⭐</button>
+            <button class="star-btn" onclick="setStar(4)">⭐</button>
+            <button class="star-btn" onclick="setStar(5)">⭐</button>
+          </div>
+          <textarea id="avalia-texto" style="min-height:70px;margin-bottom:.5rem" placeholder="Comentário opcional (ex: entregou no prazo, cobrou PIX e sumiu...)"></textarea>
+          <button class="btn btn-yellow btn-sm" onclick="enviarAvalia()" style="width:100%">Enviar avaliação</button>
+          <div class="avalia-lista" id="avalia-lista"></div>
+        </div>
+      </div>
+
     </div>
 
     <div id="vivo-empty" class="step-hint">
@@ -414,6 +646,15 @@ DOMÍNIO: cacambaslocacao.site
 
 <!-- SIDEBAR -->
 <div class="sidebar">
+
+  <div class="sidebar-section diamante-section">
+    <div class="sidebar-title">💎 Base Diamante — Verificadas</div>
+    <div class="diamante-grid" id="diamante-grid"></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-title">🔢 Mais pesquisados <span class="badge" id="rank-badge">0</span></div>
+    <div id="rank-list"></div>
+  </div>
   <div class="sidebar-section">
     <div class="sidebar-title">Histórico <span class="badge" id="hist-count">0</span></div>
     <div id="hist-list"><div class="empty-state" style="padding:1rem 0;font-size:10px">Nenhuma consulta.</div></div>
@@ -436,8 +677,8 @@ DOMÍNIO: cacambaslocacao.site
 const SUPA_URL = 'https://edhvzmmpwyizhmaeycox.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkaHZ6bW1wd3lpemhtYWV5Y294Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTEwMjYsImV4cCI6MjA4OTc2NzAyNn0.5TQ0FU7T63CoLJ23O5r5-KRBiAVOtX4VInINQ7lH0xY';
 const SUPA_H   = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
-const BL_KEY   = 'cacamba_bl_v21';
-const HIST_KEY = 'cacamba_hist_v21';
+const BL_KEY   = 'cacamba_bl_v22';
+const HIST_KEY = 'cacamba_hist_v22';
 
 // Lista negra inicial (fallback se Supabase falhar)
 const INITIAL_BL = [
@@ -516,6 +757,13 @@ async function verificarAoVivo(){
   const raw = document.getElementById('inp-domain').value.trim();
   if(!raw){ showToast('Digite o domínio primeiro!'); return; }
   const dominio = raw.toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').split('/')[0];
+
+  // Verifica se é empresa DIAMANTE
+  ocultarCardDiamante();
+  const empresaDiamante = getDiamante(dominio);
+  if(empresaDiamante){
+    mostrarCardDiamante(empresaDiamante);
+  }
 
   document.getElementById('vivo-empty').style.display='none';
   document.getElementById('vivo-resultado').style.display='block';
@@ -635,11 +883,39 @@ async function verificarAoVivo(){
   setProgress(90);
 
   // ── Render score final ────────────────────────────────────────────────────
+  // Se for DIAMANTE verificada, score = 0 automático
+  if(empresaDiamante && !blHit){
+    score = 0;
+    checks.length = 0;
+    checks.push({t:'ok', msg:'💎 Empresa verificada e auditada pelo FraudeZero'});
+    checks.push({t:'ok', msg:'✅ CNPJ ativo confirmado manualmente'});
+    checks.push({t:'ok', msg:'✅ Domínio com histórico real e rastreável'});
+    checks.push({t:'ok', msg:'✅ Empresa física verificada — existe de verdade'});
+  }
   score = Math.min(100, blHit ? 100 : score);
 
   vivoAtual = {domain:dominio, score, checks, criacao, archiveData, registrador,
                date:new Date().toLocaleDateString('pt-BR'), tipo:'ao-vivo'};
   saveToHist(vivoAtual);
+
+  // Registra pesquisa no Supabase
+  registrarPesquisa(dominio);
+
+  // Exibe contador de pesquisas
+  const totalPesq = await contarPesquisas(dominio);
+  const badgeHtml = `<div class="pesq-badge">🔍 <strong>${totalPesq}</strong> pesquisa(s) feitas neste domínio</div>`;
+  document.getElementById('vivo-status-title').insertAdjacentHTML('afterend', '<div id="pesq-badge-wrap">'+badgeHtml+'</div>');
+
+  // Abre iframe do site
+  abrirIframe(dominio);
+
+  // Abre seção de avaliações
+  avaliadomAtual = dominio;
+  document.getElementById('avalia-section').style.display='block';
+  carregarAvaliacoes(dominio);
+
+  // Atualiza ranking
+  renderRanking();
 
   const cls = score<=25?'s-green':score<=55?'s-orange':'s-red';
   document.getElementById('live-score-hero').className = 'score-hero '+cls;
@@ -936,7 +1212,14 @@ function novaVerificacao(){
   document.getElementById('bl-alert').classList.remove('show');
   document.getElementById('score-area').classList.remove('show');
   document.getElementById('s3-empty').style.display='block';
-  vivoAtual=null; current=null;
+  document.getElementById('avalia-section').style.display='none';
+  document.getElementById('iframe-wrap').style.display='none';
+  const frame=document.getElementById('site-frame'); if(frame) frame.src='about:blank';
+  const badge=document.getElementById('pesq-badge-wrap'); if(badge) badge.remove();
+  document.getElementById('live-score-area').style.display='none';
+  vivoAtual=null; current=null; avaliadomAtual=''; avaliaStarAtual=0;
+  ocultarCardDiamante();
+  setStar(0);
   updatePrompt();
   goTab('s1',document.querySelectorAll('.tab')[0]);
 }
@@ -946,8 +1229,275 @@ function showToast(m,d=2400){
   setTimeout(()=>t.classList.remove('show'),d);
 }
 
+
+// ── BASE DIAMANTE ─────────────────────────────────────────────────────────────
+const DIAMANTE = [
+  {nome:'CaçambaSP',       dom:'cacambasp.com.br',        tel:'(11) 4130-9135', anos:'desde 2007'},
+  {nome:'Portal Caçambas', dom:'portalcacambas.com',       tel:'(11) xxxx-xxxx', anos:'verificado'},
+  {nome:'Campo Belo',      dom:'cacambascampobelo.com',    tel:'(11) xxxx-xxxx', anos:'verificado'},
+  {nome:'Caçamba.com',     dom:'xn--caamba-xua.com',       tel:'(11) xxxx-xxxx', anos:'verificado'},
+];
+
+async function renderDiamante(){
+  const grid = document.getElementById('diamante-grid');
+  if(!grid) return;
+  const rows = [];
+  for(const d of DIAMANTE){
+    // busca contagem e média de avaliações
+    let pesq=0, media=0, totalAval=0;
+    try{
+      const r = await fetch(`${SUPA_URL}/rest/v1/pesquisas?dominio=eq.${d.dom}&select=count`,{headers:{...SUPA_H,'Prefer':'count=exact'}});
+      pesq = parseInt(r.headers.get('content-range')?.split('/')[1]||'0');
+    }catch(e){}
+    try{
+      const r = await fetch(`${SUPA_URL}/rest/v1/avaliacoes?dominio=eq.${d.dom}&select=nota`,{headers:SUPA_H});
+      if(r.ok){const av=await r.json();totalAval=av.length;media=totalAval?av.reduce((a,b)=>a+b.nota,0)/totalAval:0;}
+    }catch(e){}
+    rows.push({...d, pesq, media, totalAval});
+  }
+  grid.innerHTML = rows.map(d=>`
+    <div class="diamante-card" onclick="verificarDominio('${d.dom}')">
+      <div class="diamante-badge">💎 VERIFICADA</div>
+      <div class="diamante-nome">${d.nome}</div>
+      <div class="diamante-dom">${d.dom}</div>
+      <div class="diamante-stars">${d.media>0?renderStars(d.media)+' <small style="font-size:9px;color:#6b7280">(${d.totalAval})</small>':'<span style="font-size:9px;color:#6b7280">Sem avaliações</span>'}</div>
+      <div class="diamante-pesq">🔍 ${d.pesq} pesquisas</div>
+    </div>`).join('');
+}
+
+function verificarDominio(dom){
+  document.getElementById('inp-domain').value = dom;
+  onDomainInput();
+  verificarAoVivo();
+  goTab('s1', document.querySelectorAll('.tab')[0]);
+}
+
+// ── CONTADOR DE PESQUISAS ─────────────────────────────────────────────────────
+async function registrarPesquisa(dominio){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/pesquisas`,{
+      method:'POST',headers:{...SUPA_H,'Prefer':'return=minimal'},
+      body:JSON.stringify({dominio})
+    });
+  }catch(e){}
+}
+
+async function contarPesquisas(dominio){
+  try{
+    const r = await fetch(`${SUPA_URL}/rest/v1/pesquisas?dominio=eq.${dominio}&select=count`,{
+      headers:{...SUPA_H,'Prefer':'count=exact'}
+    });
+    return parseInt(r.headers.get('content-range')?.split('/')[1]||'0');
+  }catch(e){ return 0; }
+}
+
+async function renderRanking(){
+  try{
+    const r = await fetch(`${SUPA_URL}/rest/v1/pesquisas?select=dominio&order=id.desc&limit=500`,{headers:SUPA_H});
+    if(!r.ok) return;
+    const rows = await r.json();
+    const contagem = {};
+    rows.forEach(x=>{ contagem[x.dominio]=(contagem[x.dominio]||0)+1; });
+    const sorted = Object.entries(contagem).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    document.getElementById('rank-badge').textContent = sorted.length;
+    const el = document.getElementById('rank-list');
+    if(!sorted.length){ el.innerHTML='<div style="font-size:10px;font-family:var(--mono);color:var(--text3);padding:.25rem 0">Nenhuma pesquisa ainda.</div>'; return; }
+    el.innerHTML = sorted.map(([dom,cnt],i)=>`
+      <div class="rank-item">
+        <div class="rank-num">${i+1}</div>
+        <div class="rank-dom">${dom}</div>
+        <div class="rank-count">${cnt}x</div>
+      </div>`).join('');
+  }catch(e){}
+}
+
+// ── IFRAME ────────────────────────────────────────────────────────────────────
+let iframeAberto = false;
+
+function abrirIframe(dominio){
+  const url = 'https://'+dominio;
+  const wrap = document.getElementById('iframe-wrap');
+  const frame = document.getElementById('site-frame');
+  const blocked = document.getElementById('iframe-blocked');
+  document.getElementById('iframe-title').textContent = '🌐 '+dominio;
+  document.getElementById('iframe-extlink').href = url;
+  document.getElementById('iframe-extlink2').href = url;
+  frame.style.display='block';
+  blocked.style.display='none';
+  frame.src = url;
+  frame.onerror = ()=>{ frame.style.display='none'; blocked.style.display='block'; };
+  // Detecta bloqueio por X-Frame-Options (timeout 4s)
+  setTimeout(()=>{
+    try{
+      const fw = frame.contentWindow;
+      if(!fw || !fw.location.href || fw.location.href==='about:blank'){
+        frame.style.display='none'; blocked.style.display='block';
+      }
+    }catch(e){ frame.style.display='none'; blocked.style.display='block'; }
+  },4000);
+  wrap.style.display='block';
+  iframeAberto=true;
+}
+
+function toggleIframe(){
+  const wrap=document.getElementById('iframe-wrap');
+  const frame=document.getElementById('site-frame');
+  frame.src='about:blank';
+  wrap.style.display='none';
+  iframeAberto=false;
+}
+
+// ── AVALIAÇÕES ────────────────────────────────────────────────────────────────
+let avaliaStarAtual = 0;
+let avaliadomAtual  = '';
+
+function setStar(n){
+  avaliaStarAtual = n;
+  document.querySelectorAll('.star-btn').forEach((btn,i)=>{
+    btn.classList.toggle('on', i<n);
+  });
+}
+
+function renderStars(media){
+  const full = Math.round(media);
+  return '⭐'.repeat(full)+'☆'.repeat(5-full);
+}
+
+async function carregarAvaliacoes(dominio){
+  try{
+    const r = await fetch(`${SUPA_URL}/rest/v1/avaliacoes?dominio=eq.${dominio}&status=eq.aprovado&order=criado_em.desc&limit=10`,{headers:SUPA_H});
+    if(!r.ok) return;
+    const av = await r.json();
+    const lista = document.getElementById('avalia-lista');
+    const media = document.getElementById('avalia-media');
+    const mNum  = document.getElementById('avalia-media-num');
+    const mStar = document.getElementById('avalia-media-stars');
+    const mSub  = document.getElementById('avalia-media-sub');
+    if(av.length){
+      const avg = av.reduce((a,b)=>a+b.nota,0)/av.length;
+      mNum.textContent  = avg.toFixed(1);
+      mStar.textContent = renderStars(avg);
+      mSub.textContent  = av.length+' avaliação(ões)';
+      media.style.display='flex';
+      lista.innerHTML   = av.map(a=>`
+        <div class="avalia-item">
+          <div class="avalia-item-header">
+            <div class="avalia-item-stars">${'⭐'.repeat(a.nota)}${'☆'.repeat(5-a.nota)}</div>
+            <div class="avalia-item-data">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</div>
+          </div>
+          ${a.texto?`<div class="avalia-item-texto">${a.texto}</div>`:''}
+        </div>`).join('');
+    } else {
+      media.style.display='none';
+      lista.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:.25rem 0">Seja o primeiro a avaliar.</div>';
+    }
+  }catch(e){}
+}
+
+async function enviarAvalia(){
+  if(!avaliaStarAtual){ showToast('Selecione uma nota primeiro!'); return; }
+  const texto = document.getElementById('avalia-texto').value.trim();
+  const dominio = avaliadomAtual;
+  if(!dominio){ showToast('Faça uma verificação primeiro!'); return; }
+  try{
+    const r = await fetch(`${SUPA_URL}/rest/v1/avaliacoes`,{
+      method:'POST',headers:{...SUPA_H,'Prefer':'return=minimal'},
+      body:JSON.stringify({dominio,nota:avaliaStarAtual,texto:texto||null,status:'aprovado'})
+    });
+    if(r.ok||r.status===201){
+      showToast('✓ Avaliação enviada! Obrigado.');
+      document.getElementById('avalia-texto').value='';
+      setStar(0); avaliaStarAtual=0;
+      carregarAvaliacoes(dominio);
+    }
+  }catch(e){ showToast('Erro ao enviar: '+e.message); }
+}
+
+
+// ── DISCLAIMER ────────────────────────────────────────────────────────────────
+function toggleCheck(){
+  const cb=document.getElementById('disc-cb');
+  cb.checked=!cb.checked;checkReady();
+}
+function checkReady(){
+  const ready=document.getElementById('disc-cb').checked;
+  const btn=document.getElementById('disc-btn');
+  btn.disabled=!ready;btn.classList.toggle('ready',ready);
+}
+function toggleNaoMostrar(){
+  const cb=document.getElementById('disc-nao-mostrar');cb.checked=!cb.checked;
+}
+function closeDisclaimer(){
+  if(!document.getElementById('disc-cb').checked) return;
+  const naoMostrar=document.getElementById('disc-nao-mostrar').checked;
+  document.getElementById('disc-overlay').style.display='none';
+  try{ if(naoMostrar) localStorage.setItem('fraudezero_disc_v22','ok'); else localStorage.removeItem('fraudezero_disc_v22'); }catch{}
+}
+(function(){
+  try{ if(localStorage.getItem('fraudezero_disc_v22')==='ok') document.getElementById('disc-overlay').style.display='none'; }catch{}
+})();
+
+// ── BASE DIAMANTE ─────────────────────────────────────────────────────────────
+const DIAMANTE = [
+  {
+    nome:'CaçambaSP', dom:'cacambasp.com.br', estado:'São Paulo — SP',
+    anos:'17+ anos', site:'https://www.cacambasp.com.br', wpp:'5511999999999',
+    desc:'Referência em locação de caçamba em São Paulo desde 2007. Atende toda a Grande SP com agilidade, preço justo e entrega real. Mais de 300 caçambas por mês. Empresa com CNPJ ativo, endereço verificado e histórico comprovado.',
+    checks:['Empresa ativa desde 2007 — 17+ anos de mercado','CNPJ verificado e ativo na Receita Federal','Telefone fixo + WhatsApp DDD 11 — atende SP','Avaliações reais de clientes — sem denúncias','Caçambas de 4m³ — padrão licenciado SP']
+  },
+  {
+    nome:'Portal Caçambas', dom:'portalcacambas.com', estado:'Nacional',
+    anos:'verificado', site:'https://www.portalcacambas.com', wpp:'5511999999999',
+    desc:'Portal nacional de locação de caçambas com empresas verificadas em todo o Brasil.',
+    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal','Atendimento real e comprovado']
+  },
+  {
+    nome:'Caçambas Campo Belo', dom:'cacambascampobelo.com', estado:'São Paulo — SP',
+    anos:'verificado', site:'https://cacambascampobelo.com', wpp:'5511999999999',
+    desc:'Empresa verificada de locação de caçambas em São Paulo.',
+    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal']
+  },
+  {
+    nome:'Caçamba.com', dom:'xn--caamba-xua.com', estado:'São Paulo — SP',
+    anos:'verificado', site:'https://caçamba.com', wpp:'5511999999999',
+    desc:'Empresa verificada de locação de caçambas.',
+    checks:['Empresa verificada pelo FraudeZero','CNPJ ativo na Receita Federal']
+  },
+];
+
+function getDiamante(dominio){
+  const d = dominio.toLowerCase().replace(/^www\./,'');
+  return DIAMANTE.find(x=>d===x.dom.toLowerCase() || d.includes(x.dom.toLowerCase()));
+}
+
+function mostrarCardDiamante(empresa){
+  document.getElementById('d-nome').textContent      = empresa.nome;
+  document.getElementById('d-estado').textContent    = empresa.estado;
+  document.getElementById('d-anos').textContent      = empresa.anos;
+  document.getElementById('d-estrelas').textContent  = '⭐ 5.0';
+  document.getElementById('d-pesquisas').textContent = '—';
+  document.getElementById('d-desc').textContent      = empresa.desc;
+  document.getElementById('d-checks').innerHTML = empresa.checks.map(ch=>`
+    <div class="diamante-check">
+      <div class="diamante-check-icon">✓</div>
+      <span>${ch}</span>
+    </div>`).join('');
+  document.getElementById('d-link-site').href = empresa.site;
+  document.getElementById('d-link-wpp').href  = 'https://wa.me/'+empresa.wpp;
+  document.getElementById('diamante-overlay').classList.add('show');
+
+  // Busca pesquisas reais e avaliações no Supabase
+  contarPesquisas(empresa.dom).then(n=>{
+    document.getElementById('d-pesquisas').textContent = n || '—';
+  });
+}
+
+function ocultarCardDiamante(){
+  document.getElementById('diamante-overlay').classList.remove('show');
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
-initBL();renderHist();updatePrompt();
+initBL();renderHist();updatePrompt();renderDiamante();renderRanking();
 </script>
 </body>
 </html>
