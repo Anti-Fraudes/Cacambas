@@ -3866,6 +3866,7 @@ async function monitorProcessarDominios(dominios){
     }
 
     // Consulta RDAP
+    let mesesDominio = null;
     try {
       const rdap = await fetch(`https://rdap.org/domain/${d}`);
       if(rdap.ok){
@@ -3874,16 +3875,43 @@ async function monitorProcessarDominios(dominios){
         const reg = eventos.find(e=>e.eventAction==='registration');
         if(reg){
           criacao = new Date(reg.eventDate).toLocaleDateString('pt-BR');
-          const meses = Math.floor((Date.now()-new Date(reg.eventDate))/(30*24*60*60*1000));
-          if(meses===0){ risco+=55; motivos.push('Domínio criado este mês'); }
-          else if(meses<3){ risco+=45; motivos.push(`Domínio com ${meses} mês(es)`); }
-          else if(meses<6){ risco+=25; motivos.push(`Domínio com ${meses} meses`); }
+          mesesDominio = Math.floor((Date.now()-new Date(reg.eventDate))/(30*24*60*60*1000));
+          if(mesesDominio===0){ risco+=55; motivos.push('Domínio criado este mês'); }
+          else if(mesesDominio<3){ risco+=45; motivos.push(`Domínio com ${mesesDominio} mês(es)`); }
+          else if(mesesDominio<6){ risco+=25; motivos.push(`Domínio com ${mesesDominio} meses`); }
         }
       }
     } catch(e){}
 
+    // Consulta Wayback Machine (Archive.org)
+    let wayback = '—';
+    try {
+      const wb = await fetch(`https://archive.org/wayback/available?url=${d}`);
+      if(wb.ok){
+        const wbd = await wb.json();
+        const snap = wbd.archived_snapshots?.closest;
+        if(snap && snap.available){
+          const ts = snap.timestamp;
+          wayback = `${ts.slice(6,8)}/${ts.slice(4,6)}/${ts.slice(0,4)}`;
+          const wbMs = new Date(`${ts.slice(0,4)}-${ts.slice(4,6)}-${ts.slice(6,8)}`);
+          const mesesWb = Math.floor((Date.now()-wbMs)/(30*24*60*60*1000));
+          if(mesesWb < 2){
+            risco += 40; motivos.push('🕸️ Sem histórico no Archive.org');
+          } else if(mesesWb < 6){
+            risco += 20; motivos.push(`🕸️ Apenas ${mesesWb} meses de rastro`);
+          }
+          if(mesesDominio !== null && mesesDominio > 12 && mesesWb < 3){
+            risco += 25; motivos.push('⚠️ Domínio antigo, site recém-criado');
+          }
+        } else {
+          wayback = 'Sem registro';
+          risco += 35; motivos.push('🕸️ Invisível no Archive.org');
+        }
+      }
+    } catch(e){ wayback = 'Timeout'; }
+
     risco = Math.min(100, risco);
-    resultados.push({dom:d, risco, motivos, criacao});
+    resultados.push({dom:d, risco, motivos, criacao, wayback});
     if(risco >= 60) monitorDominiosVermelhos.push(d);
   }
 
@@ -3902,7 +3930,8 @@ function monitorRenderResultado(resultados){
       <div>${emoji}</div>
       <div class="monitor-dominio">
         <strong>${r.dom}</strong>
-        <span>Criado: ${r.criacao} · ${r.motivos.join(' · ')||'Sem alertas'}</span>
+        <span>📅 Domínio: ${r.criacao} · 🕸️ Archive: ${r.wayback||'—'}</span>
+        <span style="color:var(--orange)">${r.motivos.join(' · ')||''}</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
         <span class="monitor-score-pill ${pillCls}">${r.risco}/100</span>
