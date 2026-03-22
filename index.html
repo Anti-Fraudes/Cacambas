@@ -515,7 +515,10 @@ iframe.site-frame{width:100%;height:420px;border:none;display:block}
       <!-- Avaliações -->
       <div class="avalia-section" id="avalia-section" style="display:none">
         <div class="avalia-card">
-          <div class="avalia-title">⭐ Avaliações de quem usou este serviço</div>
+          <div class="avalia-title">⭐ Avaliações sobre <span id="avalia-dominio-nome" style="color:var(--yellow)">esta empresa</span></div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--orange);margin-bottom:.75rem;padding:.5rem .75rem;background:rgba(255,140,66,.07);border-radius:6px;border-left:3px solid var(--orange)">
+            Você contratou esta empresa? Compartilhe sua experiência e ajude outras pessoas a não caírem em golpes.
+          </div>
           <div class="avalia-media" id="avalia-media" style="display:none">
             <div>
               <div class="avalia-media-num" id="avalia-media-num">—</div>
@@ -523,7 +526,7 @@ iframe.site-frame{width:100%;height:420px;border:none;display:block}
               <div class="avalia-media-sub" id="avalia-media-sub">avaliações</div>
             </div>
           </div>
-          <div style="margin-bottom:.5rem;font-family:var(--mono);font-size:10px;color:var(--text3)">Você usou este serviço? Avalie:</div>
+          <div style="margin-bottom:.5rem;font-family:var(--mono);font-size:10px;color:var(--text3)">Selecione sua nota:</div>
           <div class="stars-input" id="stars-input">
             <button class="star-btn" onclick="setStar(1)">⭐</button>
             <button class="star-btn" onclick="setStar(2)">⭐</button>
@@ -647,10 +650,6 @@ DOMÍNIO: cacambaslocacao.site
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="sidebar-section diamante-section">
-    <div class="sidebar-title">💎 Base Diamante — Verificadas</div>
-    <div class="diamante-grid" id="diamante-grid"></div>
-  </div>
   <div class="sidebar-section">
     <div class="sidebar-title">🔢 Mais pesquisados <span class="badge" id="rank-badge">0</span></div>
     <div id="rank-list"></div>
@@ -912,6 +911,7 @@ async function verificarAoVivo(){
   // Abre seção de avaliações
   avaliadomAtual = dominio;
   document.getElementById('avalia-section').style.display='block';
+  document.getElementById('avalia-dominio-nome').textContent = dominio;
   carregarAvaliacoes(dominio);
 
   // Atualiza ranking
@@ -1490,7 +1490,7 @@ function ocultarCardDiamante(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-initBL();renderHist();updatePrompt();renderDiamante();renderRanking();
+initBL();renderHist();updatePrompt();renderRanking();
 </script>
 </body>
 </html>
