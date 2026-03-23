@@ -843,7 +843,10 @@ async function verificarAoVivo(){
 
   // ── RDAP — Idade do domínio ───────────────────────────────────────────────
   try {
-    const rdap = await fetch(`https://rdap.org/domain/${dominio}`);
+    const rdapCtrl = new AbortController();
+    const rdapTimer = setTimeout(()=>rdapCtrl.abort(), 5000);
+    const rdap = await fetch(`https://rdap.org/domain/${dominio}`, {signal: rdapCtrl.signal});
+    clearTimeout(rdapTimer);
     if(rdap.ok){
       const rd = await rdap.json();
       registrador = rd.entities?.find(e=>e.roles?.includes('registrar'))?.vcardArray?.[1]?.find(v=>v[0]==='fn')?.[3] || '—';
@@ -882,15 +885,21 @@ async function verificarAoVivo(){
       setLiveCell('live-idade','—','warn');
     }
   } catch(e){
-    setLiveCell('live-criacao','Timeout','warn');
-    setLiveCell('live-idade','—','warn');
+    const msg = e.name==='AbortError' ? 'Consulta lenta — tente novamente' : 'Não encontrado';
+    setLiveCell('live-criacao', msg, 'warn');
+    setLiveCell('live-idade', '—', 'warn');
+    setLiveCell('live-registrador', '—', 'warn');
+    checks.push({t:'warn', msg:'Idade do domínio não localizada — consulta RDAP expirou'});
   }
 
   setProgress(60);
 
   // ── Wayback Machine — Histórico na internet ───────────────────────────────
   try {
-    const wb = await fetch(`https://archive.org/wayback/available?url=${dominio}`);
+    const wbController = new AbortController();
+    const wbTimer = setTimeout(()=>wbController.abort(), 4000);
+    const wb = await fetch(`https://archive.org/wayback/available?url=${dominio}`, {signal: wbController.signal});
+    clearTimeout(wbTimer);
     if(wb.ok){
       const wbd = await wb.json();
       const snap = wbd.archived_snapshots?.closest;
@@ -921,7 +930,8 @@ async function verificarAoVivo(){
       }
     }
   } catch(e){
-    setLiveCell('live-archive','Timeout','warn');
+    setLiveCell('live-archive', e.name==='AbortError'?'Consulta lenta':'Erro', 'warn');
+    checks.push({t:'warn', msg:'Archive.org não respondeu a tempo — tente novamente'});
   }
 
   setProgress(90);
