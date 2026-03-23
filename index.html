@@ -468,6 +468,12 @@ iframe.site-frame{width:100%;height:420px;border:none;display:block}
         </div>
       </div>
 
+      <!-- Mini resenha dos dados ao vivo -->
+      <div id="live-mini-resenha" style="display:none;margin-top:.75rem;padding:.9rem 1.1rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.8">
+        <strong style="color:var(--text);display:block;margin-bottom:.4rem">📋 O que esses dados significam?</strong>
+        <div id="live-mini-resenha-txt"></div>
+      </div>
+
       <!-- Score ao vivo -->
       <div id="live-score-area" style="display:none">
         <div class="score-area show" style="margin-top:0">
@@ -548,9 +554,42 @@ iframe.site-frame{width:100%;height:420px;border:none;display:block}
 
     </div>
 
-    <div id="vivo-empty" class="step-hint">
-      Digite o domínio suspeito acima e clique em <strong>Verificar</strong>.<br>
-      A ferramenta consulta ao vivo: data de criação (RDAP) + histórico na internet (Archive.org) + lista negra.
+    <div id="vivo-empty" style="margin-top:1.25rem">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:1rem 1.25rem;background:var(--bg4);border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text)">
+          🔍 Como funciona esta verificação?
+        </div>
+        <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;font-size:13px;color:var(--text2);line-height:1.8">
+
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="font-size:22px;flex-shrink:0">📅</div>
+            <div><strong style="color:var(--text)">Quando o site foi criado?</strong><br>
+            Pesquisamos a data de nascimento do endereço na internet. Sites criados há menos de 6 meses são sinal de alerta — a maioria dos golpistas cria um site, cobra o PIX e some em poucos meses.</div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="font-size:22px;flex-shrink:0">🕸️</div>
+            <div><strong style="color:var(--text)">O site tem histórico na internet?</strong><br>
+            Verificamos se o site já apareceu em registros históricos da web. Um site que não tem rastro antes de 2024 nunca existiu de verdade — pode ter sido criado ontem só para aplicar golpes.</div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="font-size:22px;flex-shrink:0">🚫</div>
+            <div><strong style="color:var(--text)">Está na lista de golpistas conhecidos?</strong><br>
+            Cruzamos com nossa base de domínios já denunciados por vítimas. Se estiver na lista, o alerta é imediato.</div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="font-size:22px;flex-shrink:0">💎</div>
+            <div><strong style="color:var(--text)">É uma empresa verificada?</strong><br>
+            Se a empresa estiver na nossa base de empresas auditadas, você verá um card verde com todos os dados verificados e um link direto para contratar com segurança.</div>
+          </div>
+
+          <div style="padding:.75rem 1rem;background:rgba(245,197,66,.07);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;font-size:12px;color:var(--yellow)">
+            ⚠️ <strong>Dica:</strong> Nunca pague PIX antes de receber a caçamba. Empresa séria cobra na entrega.
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -963,6 +1002,43 @@ async function verificarAoVivo(){
   document.getElementById('live-score-area').style.display='block';
   setProgress(100);
 
+  // Mini resenha dos dados ao vivo em linguagem simples
+  const miniEl = document.getElementById('live-mini-resenha');
+  const miniTxt = document.getElementById('live-mini-resenha-txt');
+  if(miniEl && miniTxt && !empresaDiamante){
+    const criacaoEl  = document.getElementById('live-criacao').textContent;
+    const idadeEl    = document.getElementById('live-idade').textContent;
+    const archiveEl  = document.getElementById('live-archive').textContent;
+
+    let mini = '';
+
+    // Idade do domínio
+    if(idadeEl.includes('dia') || idadeEl.includes('mês(es)') && parseInt(idadeEl) < 3){
+      mini += `🔴 <strong>Site muito recente:</strong> ${idadeEl}. Golpistas costumam criar sites novos, cobrar o PIX e desaparecer em semanas. <br>`;
+    } else if(idadeEl.includes('meses') && parseInt(idadeEl) < 12){
+      mini += `🟠 <strong>Site relativamente novo:</strong> ${idadeEl}. Vale verificar mais antes de contratar.<br>`;
+    } else {
+      mini += `✅ <strong>Site com tempo de existência razoável:</strong> ${idadeEl}.<br>`;
+    }
+
+    // Archive.org
+    if(archiveEl.includes('Sem registro') || archiveEl.includes('Invisível') || archiveEl.includes('Nenhum registro')){
+      mini += `🔴 <strong>Sem rastro na internet:</strong> Este site nunca foi registrado em históricos da web. Empresa séria com anos de atuação sempre aparece em algum lugar antes de 2024.<br>`;
+    } else if(archiveEl.includes('meses') && parseInt(archiveEl) < 6){
+      mini += `🟠 <strong>Pouco histórico:</strong> O site só apareceu recentemente nos registros da internet.<br>`;
+    } else {
+      mini += `✅ <strong>Site com histórico confirmado</strong> na internet — encontramos registros anteriores.<br>`;
+    }
+
+    // Lista negra
+    if(blHit){
+      mini += `🚫 <strong>ATENÇÃO:</strong> Este domínio já foi denunciado por vítimas e consta na nossa lista negra.<br>`;
+    }
+
+    miniTxt.innerHTML = mini;
+    miniEl.style.display = 'block';
+  }
+
   // Gerar resenha analítica
   const resenhaWrap = document.getElementById('live-resenha-wrap');
   const resenhaBox  = document.getElementById('live-resenha-box');
@@ -1300,6 +1376,8 @@ function novaVerificacao(){
   ocultarCardDiamante();
   const rw = document.getElementById('live-resenha-wrap');
   if(rw) rw.style.display='none';
+  const mr = document.getElementById('live-mini-resenha');
+  if(mr) mr.style.display='none';
   setStar(0);
   updatePrompt();
   goTab('s1',document.querySelectorAll('.tab')[0]);
