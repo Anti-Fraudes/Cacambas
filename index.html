@@ -1114,18 +1114,29 @@ function copyPrompt(){
 
 // ── PARSER ────────────────────────────────────────────────────────────────────
 function parseResult(text){
+  // Busca qualquer linha numerada: "1." ou "1)" ou "**1."
   const get=num=>{
-    const re=new RegExp('^\\s*'+num+'[.)\\s][^:]*:\\s*(.+)$','im');
+    const re=new RegExp('^[\\s*]*'+num+'[.)][^:\n]*:\s*(.+)$','im');
     const m=text.match(re);
     if(!m) return '';
-    const v=m[1].trim();
-    if(/^(não encontrado|nao encontrado|not found|n\/a|indispon|sem registro|—|-)$/i.test(v)) return '';
+    const v=m[1].trim().replace(/\*\*/g,'');
+    if(/^(não encontrado|nao encontrado|not found|n\/a|indispon|sem registro|—|-|n\.e\.)$/i.test(v)) return '';
     return v;
   };
-  const dm=text.match(/DOM[IÍ]NIO[^:]*:\s*\[?([^\]\n\r]+)\]?/i);
-  const domain=dm?dm[1].trim().replace(/[\[\]]/g,''):'';
-  const mesesRaw=get(3);
-  let mesesNum=999;
+
+  // Domínio — tenta várias formas
+  let domain = '';
+  const dm = text.match(/DOM[IÍ]NIO[^:]*:\s*\[?([^\]\n\r]+)\]?/i);
+  if(dm) domain = dm[1].trim().replace(/[\[\]]/g,'');
+  // Fallback: pega do campo da aba ①
+  if(!domain || domain==='—'){
+    const inp = document.getElementById('inp-domain-b')?.value || document.getElementById('inp-domain')?.value || '';
+    domain = inp.replace(/^https?:\/\//,'').replace(/^www\./,'').split('/')[0].trim();
+  }
+
+  // Meses — campo 3 do novo formato (mas pode não existir — usa dados ao vivo)
+  const mesesRaw = get(3);
+  let mesesNum = 999;
   if(mesesRaw){
     if(/dia/i.test(mesesRaw)) mesesNum=0;
     else if(/menos.*m[eê]s/i.test(mesesRaw)) mesesNum=0;
@@ -1206,8 +1217,8 @@ function calcScore(d){
   // CNPJ
   if(!d.cnpj){ s+=25; ch.push({t:'bad',msg:'Sem CNPJ visível no site'}); }
   else if(/inv[aá]lido|mascara|falso/i.test(d.cnpj)){ s+=35; ch.push({t:'bad',msg:`CNPJ suspeito: ${d.cnpj}`}); }
-  else if(/desde 19[0-9]{2}|desde 20[01][0-9]|ativ.*19[0-9]{2}|diverge|divergên|empresa ativa desde/i.test(d.cnpj)){
-    s+=35; ch.push({t:'bad',msg:`⚠️ CNPJ com inconsistência: ${d.cnpj} — empresa antiga com site recente é forte indício de uso indevido de CNPJ alheio`});
+  else if(/desde 19[0-9]{2}|desde 20[01][0-9]|ativ.*19[0-9]{2}|diverge|divergên|empresa ativa desde|indevida|pertence.*outra|usado.*indevid|outra empresa|terceiro|alheio|não.*pertence/i.test(d.cnpj)){
+    s+=45; ch.push({t:'bad',msg:`🚨 CNPJ usado indevidamente: ${d.cnpj.substring(0,60)} — este CNPJ pertence a outra empresa e está sendo usado para enganar consumidores`});
   }
   else{ ch.push({t:'ok',msg:`CNPJ: ${d.cnpj}`}); }
 
@@ -1255,10 +1266,15 @@ function calcScore(d){
     }
   } else { s+=10; ch.push({t:'warn',msg:'WhatsApp não encontrado'}); }
 
-  // Reclame Aqui
+  // Reclame Aqui — detecta denúncias mesmo em texto livre do Gemini
   if(d.reclame){
-    if(/sim|\d+\s*reclama/i.test(d.reclame)){ s+=40; ch.push({t:'bad',msg:`Denúncias Reclame Aqui: ${d.reclame}`}); }
-    else{ ch.push({t:'ok',msg:'Sem denúncias no Reclame Aqui'}); }
+    if(/sim|\d+\s*reclama/i.test(d.reclame)){
+      s+=40; ch.push({t:'bad',msg:`Denúncias Reclame Aqui: ${d.reclame.substring(0,80)}`});
+    } else if(/alerta|golpe|fraude|pixi|pix.*sumiu|não.*recebeu|vitima|vítima|relato|notici/i.test(d.reclame)){
+      s+=30; ch.push({t:'bad',msg:`⚠️ Alertas encontrados: ${d.reclame.substring(0,80)}`});
+    } else {
+      ch.push({t:'ok',msg:'Sem denúncias no Reclame Aqui'});
+    }
   }
 
   // Telefone fixo
