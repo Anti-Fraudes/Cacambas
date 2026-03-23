@@ -1058,9 +1058,14 @@ function parseResult(text){
   }
 
   return{ domain, mesesRaw: mesesRaw || liveIdade, mesesNum: mesesNumFinal,
-    criacao: get(1) || liveCriacao,
-    registrar: get(2),
-    cnpj: get(1), tel: get(2), wpp: get(3), reclame: get(4), pais: get(5), conteudo: get(6),
+    criacao:   get(1) || liveCriacao,
+    registrar: get(2) || '—',
+    cnpj:      get(1),
+    tel:       get(2),
+    wpp:       get(3),
+    reclame:   get(4),
+    pais:      get(5),
+    conteudo:  get(6),
     raw: text };
 }
 
@@ -1171,15 +1176,20 @@ function renderScore({data,score,checks}){
   else if(score<=55){ lbl.textContent='Risco médio'; tit.textContent='Verificar manualmente'; sub.textContent='Pontos de atenção. Confirme CNPJ e telefone antes de fechar negócio.'; btn.style.display='inline-flex'; }
   else { lbl.textContent='Alto risco'; tit.textContent='PROVÁVEL GOLPE'; sub.textContent='Múltiplos sinais críticos. NÃO contratar. Adicionar à lista negra.'; btn.style.display='inline-flex'; }
 
+  // Dados ao vivo da aba ① (mais confiáveis)
+  const liveCriacaoVal = document.getElementById('live-criacao')?.textContent || '—';
+  const liveIdadeVal   = document.getElementById('live-idade')?.textContent   || '—';
+  const liveRegVal     = document.getElementById('live-registrador')?.textContent || data.registrar || '—';
+
   document.getElementById('dgrid').innerHTML=[
-    {l:'Domínio',v:data.domain,c:''},
-    {l:'Criado em',v:data.criacao||'—',c:data.mesesNum<6?'bad':'ok'},
-    {l:'Registrador',v:data.registrar||'—',c:''},
-    {l:'CNPJ',v:data.cnpj||'não encontrado',c:data.cnpj?'ok':'bad'},
-    {l:'Telefone',v:data.tel||'não encontrado',c:data.tel?'ok':'warn'},
-    {l:'WhatsApp',v:data.wpp||'não encontrado',c:data.wpp?'ok':'warn'},
-    {l:'Reclame Aqui',v:data.reclame||'não verificado',c:(data.reclame&&/sim/i.test(data.reclame))?'bad':'ok'},
-    {l:'Meses online',v:data.mesesRaw||'—',c:data.mesesNum<6?'bad':'ok'},
+    {l:'Domínio',      v:data.domain,                                              c:''},
+    {l:'Criado em',    v:liveCriacaoVal!=='—'?liveCriacaoVal:(data.criacao||'—'),  c:data.mesesNum<6?'bad':'ok'},
+    {l:'Registrador',  v:liveRegVal,                                               c:''},
+    {l:'CNPJ',         v:data.cnpj||'não encontrado',                              c:data.cnpj?'ok':'bad'},
+    {l:'Telefone',     v:data.tel||'não encontrado',                               c:data.tel?'ok':'warn'},
+    {l:'WhatsApp',     v:data.wpp||'não encontrado',                               c:data.wpp?'ok':'warn'},
+    {l:'Reclame Aqui', v:data.reclame||'não verificado',                           c:(data.reclame&&/sim/i.test(data.reclame))?'bad':'ok'},
+    {l:'Idade',        v:liveIdadeVal!=='—'?liveIdadeVal:(data.mesesRaw||'—'),     c:data.mesesNum<6?'bad':'ok'},
   ].map(f=>`<div class="dcell"><div class="dcell-label">${f.l}</div><div class="dcell-val ${f.c}">${f.v||'—'}</div></div>`).join('');
 
   document.getElementById('chklist').innerHTML=checks.map(c=>`
