@@ -490,7 +490,13 @@ iframe.site-frame{width:100%;height:420px;border:none;display:block}
           <div class="action-row">
             <button class="btn btn-red" id="live-btn-bl" onclick="addCurrentToBL()" style="display:none">⊕ Lista Negra</button>
             <button class="btn btn-ghost" onclick="goTab('s2',document.querySelectorAll('.tab')[1])">+ Análise com IA →</button>
-            <button class="btn btn-ghost" onclick="novaVerificacao()">↺ Nova</button>
+            <button class="btn btn-yellow" onclick="novaVerificacao()">↺ Nova Pesquisa</button>
+          </div>
+
+          <!-- RESENHA ANALÍTICA -->
+          <div id="live-resenha-wrap" style="display:none;margin-top:1.25rem">
+            <div class="label">Resenha analítica</div>
+            <div id="live-resenha-box" style="font-size:13px;line-height:1.9;color:var(--text2)"></div>
           </div>
         </div>
       </div>
@@ -957,6 +963,14 @@ async function verificarAoVivo(){
   document.getElementById('live-score-area').style.display='block';
   setProgress(100);
 
+  // Gerar resenha analítica
+  const resenhaWrap = document.getElementById('live-resenha-wrap');
+  const resenhaBox  = document.getElementById('live-resenha-box');
+  if(resenhaWrap && resenhaBox){
+    resenhaBox.innerHTML = gerarResenhaHTML(score, checks, {});
+    resenhaWrap.style.display = 'block';
+  }
+
   // Sincroniza domínio para aba ② e atualiza prompt com dados ao vivo
   document.getElementById('inp-domain-b').value = dominio;
   // Pequeno delay para garantir que os campos live já foram preenchidos
@@ -1087,13 +1101,22 @@ function calcScore(d){
   else if(/inv[aá]lido|mascara|falso/i.test(d.cnpj)){ s+=35; ch.push({t:'bad',msg:`CNPJ suspeito: ${d.cnpj}`}); }
   else{ ch.push({t:'ok',msg:`CNPJ: ${d.cnpj}`}); }
 
-  // WhatsApp DDD fora de SP
+  // WhatsApp DDD fora de SP — só penaliza se site declara ser de SP
   if(d.wpp){
     const ddd=d.wpp.match(/\(?(\d{2})\)?/);
     if(ddd){
       const n=parseInt(ddd[1]);
-      if(![11,12,13,14,15,16,17,18,19].includes(n)){ s+=30; ch.push({t:'bad',msg:`WhatsApp DDD ${n} (fora de SP) — empresa SP com número de outro estado`}); }
-      else{ ch.push({t:'ok',msg:`WhatsApp: ${d.wpp}`}); }
+      const dddssp=[11,12,13,14,15,16,17,18,19];
+      // Verifica se o domínio ou conteúdo indica SP
+      const indicaSP = /sp|sao.paulo|são.paulo|sampa/.test(dom) ||
+                       /sp|são paulo|sao paulo/i.test(d.conteudo||'');
+      if(!dddssp.includes(n) && indicaSP){
+        s+=30; ch.push({t:'bad',msg:`WhatsApp DDD ${n} (fora de SP) — site indica atender SP mas número é de outro estado`});
+      } else if(!dddssp.includes(n)){
+        ch.push({t:'info',msg:`WhatsApp DDD ${n} — empresa fora de SP`});
+      } else {
+        ch.push({t:'ok',msg:`WhatsApp: ${d.wpp}`});
+      }
     }
   } else { s+=10; ch.push({t:'warn',msg:'WhatsApp não encontrado'}); }
 
@@ -1265,6 +1288,8 @@ function novaVerificacao(){
   document.getElementById('live-score-area').style.display='none';
   vivoAtual=null; current=null; avaliadomAtual=''; avaliaStarAtual=0;
   ocultarCardDiamante();
+  const rw = document.getElementById('live-resenha-wrap');
+  if(rw) rw.style.display='none';
   setStar(0);
   updatePrompt();
   goTab('s1',document.querySelectorAll('.tab')[0]);
@@ -1553,6 +1578,75 @@ function mostrarCardDiamante(empresa){
 
 function ocultarCardDiamante(){
   document.getElementById('diamante-overlay').classList.remove('show');
+}
+
+
+// ── RESENHA ANALÍTICA ─────────────────────────────────────────────────────────
+function gerarResenhaHTML(score, checks, data){
+  const pontosMaus   = checks.filter(c=>c.t==='bad');
+  const pontosAlerta = checks.filter(c=>c.t==='warn');
+  const pontosOk     = checks.filter(c=>c.t==='ok');
+
+  const palavrasAtivas = ['lista negra','golpista','invisível','sem lastro','sem histórico','tld','criado este mês','criado há'];
+  const indiciosAtivos = pontosMaus.filter(c => palavrasAtivas.some(p => c.msg.toLowerCase().includes(p)));
+  const ausencias      = pontosMaus.filter(c => !palavrasAtivas.some(p => c.msg.toLowerCase().includes(p)));
+
+  let txt = '';
+
+  // BLOCO 1 — Resumo geral em linguagem simples
+  txt += `<div style="padding:.75rem 1rem;background:var(--bg3);border-radius:8px;margin-bottom:1rem;font-size:13px;line-height:1.8;border:1px solid var(--border)">
+    <strong style="color:var(--yellow)">📋 O que encontramos sobre este site</strong><br><br>`;
+
+  if(score<=25){
+    txt += `O índice de atenção ficou em <strong style="color:var(--green)">${score}/100</strong> — <strong>baixo risco</strong>. A análise automática não encontrou sinais críticos. O domínio tem histórico razoável. Prossiga com as precauções normais de qualquer contratação.`;
+  } else if(score<=55){
+    txt += `O índice de atenção ficou em <strong style="color:var(--orange)">${score}/100</strong>. Isso <strong>não significa golpe confirmado</strong> — significa que alguns pontos merecem verificação antes de fechar negócio. Use a aba <strong>② Análise com IA</strong> para aprofundar.`;
+  } else {
+    txt += `O índice de atenção ficou em <strong style="color:var(--red)">${score}/100</strong>. A análise encontrou <strong>${pontosMaus.length} sinais críticos</strong>. Recomendamos <strong>não contratar</strong> sem verificação rigorosa. Se for golpista, use o botão Lista Negra.`;
+  }
+  txt += `</div>`;
+
+  // BLOCO 2 — Sinais críticos
+  if(indiciosAtivos.length > 0){
+    txt += `<div style="padding:.75rem 1rem;background:rgba(255,61,87,.07);border:1px solid rgba(255,61,87,.2);border-radius:8px;margin-bottom:1rem;font-size:13px;line-height:1.8">
+      <strong style="color:var(--red)">🔴 Sinais críticos detectados (${indiciosAtivos.length})</strong><br><br>`;
+    indiciosAtivos.forEach(c=>{
+      txt += `<div style="padding:.4rem .75rem;background:rgba(255,61,87,.05);border-radius:6px;margin-top:.4rem">🔸 ${c.msg}</div>`;
+    });
+    txt += `</div>`;
+  }
+
+  // BLOCO 3 — Ausências / pontos de atenção
+  if(ausencias.length > 0 || pontosAlerta.length > 0){
+    const todos = [...ausencias, ...pontosAlerta];
+    txt += `<div style="padding:.75rem 1rem;background:rgba(255,140,66,.06);border:1px solid rgba(255,140,66,.2);border-radius:8px;margin-bottom:1rem;font-size:13px;line-height:1.8">
+      <strong style="color:var(--orange)">🟡 Pontos de atenção (${todos.length})</strong><br>
+      <span style="font-size:11px;color:var(--text3)">Estes pontos não confirmam fraude — merecem verificação antes de contratar.</span><br><br>`;
+    todos.forEach(c=>{
+      txt += `<div style="padding:.4rem .75rem;background:rgba(255,140,66,.04);border-radius:6px;margin-top:.4rem">🔹 ${c.msg}</div>`;
+    });
+    txt += `</div>`;
+  }
+
+  // BLOCO 4 — Positivos
+  if(pontosOk.length > 0){
+    txt += `<div style="padding:.75rem 1rem;background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:8px;margin-bottom:1rem;font-size:13px;line-height:1.8">
+      <strong style="color:var(--green)">✅ O que está positivo (${pontosOk.length} pontos confirmados)</strong><br><br>`;
+    pontosOk.forEach(c=>{
+      txt += `<span style="display:block;margin-top:.3rem">✓ ${c.msg}</span>`;
+    });
+    txt += `</div>`;
+  }
+
+  // BLOCO 5 — Aviso final
+  txt += `<div style="padding:.75rem 1rem;background:rgba(255,140,66,.06);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;font-family:var(--mono);font-size:11px;color:var(--orange);line-height:1.8">
+    ⚠️ <strong>Atenção — confirme cada item antes de negociar</strong><br>
+    → <strong>Ligue agora</strong> para confirmar se a empresa está ativa e atende sua região<br>
+    → <strong>Exija o CNPJ</strong> — não feche sem ele. Valide em <a href="https://www.receita.fazenda.gov.br/" target="_blank" style="color:var(--yellow)">Receita Federal</a><br>
+    → <strong>Nunca pague PIX antecipado</strong> — combine pagamento somente quando a caçamba chegar
+  </div>`;
+
+  return txt;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
