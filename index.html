@@ -1137,10 +1137,26 @@ function parseResult(text){
 
   // Meses — tenta do live primeiro, depois do texto colado
   let mesesNumFinal = mesesNum;
-  if(mesesNumFinal===999 && liveIdade){
-    const n = liveIdade.match(/(\d+)\s*mês/i);
-    if(n) mesesNumFinal = parseInt(n[1]);
+  // Se não leu meses do texto colado, tenta pegar dos dados ao vivo
+  if(mesesNumFinal===999 && liveIdade && liveIdade !== '—'){
+    const n = liveIdade.match(/(\d+)\s*(mês|mes|ano)/i);
+    if(n){
+      mesesNumFinal = parseInt(n[1]);
+      if(/ano/i.test(n[2])) mesesNumFinal = mesesNumFinal * 12;
+    }
     if(/dia/i.test(liveIdade)) mesesNumFinal = 0;
+  }
+  // Se ainda 999, usa dados ao vivo direto da tela
+  if(mesesNumFinal===999){
+    const liveIdadeEl = document.getElementById('live-idade');
+    if(liveIdadeEl){
+      const txt = liveIdadeEl.textContent;
+      const n = txt.match(/(\d+)\s*(mês|mes|ano)/i);
+      if(n){
+        mesesNumFinal = parseInt(n[1]);
+        if(/ano/i.test(n[2])) mesesNumFinal = mesesNumFinal * 12;
+      }
+    }
   }
 
   return{ domain, mesesRaw: mesesRaw || liveIdade, mesesNum: mesesNumFinal,
@@ -1191,6 +1207,27 @@ function calcScore(d){
   if(!d.cnpj){ s+=25; ch.push({t:'bad',msg:'Sem CNPJ visível no site'}); }
   else if(/inv[aá]lido|mascara|falso/i.test(d.cnpj)){ s+=35; ch.push({t:'bad',msg:`CNPJ suspeito: ${d.cnpj}`}); }
   else{ ch.push({t:'ok',msg:`CNPJ: ${d.cnpj}`}); }
+
+  // WhatsApp sem número visível (padrão wa.me/message/) — SINAL GRAVE
+  if(d.wpp){
+    const wppTxt = d.wpp.toLowerCase();
+    const semNumero = /botão|link|sem número|sem numero|explícit|explicito|message\/|wa\.me\/message/i.test(d.wpp)
+                   || /não encontrado.*botão|apenas.*botão|apenas.*link/i.test(d.wpp);
+    if(semNumero){
+      s+=35;
+      ch.push({t:'bad', msg:'⚠️ WhatsApp SEM NÚMERO visível — link de convite (wa.me/message) — padrão comum em golpistas que ocultam o número para dificultar rastreamento e troca rápida de contato'});
+    }
+  }
+
+  // CNPJ antigo + domínio novo = possível uso indevido de CNPJ alheio
+  const anoAbertura = d.cnpj ? (d.cnpj.match(/desde (\d{4})|empresa.*?(\d{4})|ativ.*?(\d{4})/i) || [])[1] || null : null;
+  if(anoAbertura && mesesNumFinal < 24){
+    const anosEmpresa = new Date().getFullYear() - parseInt(anoAbertura);
+    if(anosEmpresa >= 5){
+      s+=40;
+      ch.push({t:'bad', msg:`⚠️ CNPJ de empresa ativa desde ${anoAbertura} (${anosEmpresa} anos) com domínio criado há menos de 2 anos — forte indício de uso indevido de CNPJ alheio`});
+    }
+  }
 
   // WhatsApp DDD fora de SP — só penaliza se site declara ser de SP
   if(d.wpp){
@@ -1703,6 +1740,23 @@ function gerarResenhaHTML(score, checks, data){
     txt += `O índice de atenção ficou em <strong style="color:var(--red)">${score}/100</strong>. A análise encontrou <strong>${pontosMaus.length} sinais críticos</strong>. Recomendamos <strong>não contratar</strong> sem verificação rigorosa. Se for golpista, use o botão Lista Negra.`;
   }
   txt += `</div>`;
+
+  // BLOCO ESPECIAL — WhatsApp sem número (alerta destacado)
+  const wppSemNumero = checks.find(c=>c.msg && c.msg.includes('WhatsApp SEM NÚMERO'));
+  if(wppSemNumero){
+    txt += `<div style="padding:1rem 1.25rem;background:rgba(255,61,87,.12);border:2px solid rgba(255,61,87,.4);border-radius:10px;margin-bottom:1rem;font-size:13px;line-height:1.9">
+      <div style="font-size:15px;font-weight:800;color:var(--red);margin-bottom:.5rem">🚨 ALERTA: WhatsApp sem número visível</div>
+      <p style="color:#fca5a5;margin-bottom:.75rem">Este site usa um <strong>link de convite do WhatsApp</strong> (wa.me/message/...) em vez de exibir um número de telefone real. Isso é um sinal muito sério por três motivos:</p>
+      <div style="display:flex;flex-direction:column;gap:.5rem;font-size:12px;color:#fca5a5">
+        <div>🔴 <strong>Número oculto:</strong> Impossível verificar o DDD ou rastrear a origem do contato</div>
+        <div>🔴 <strong>Troca instantânea:</strong> O golpista pode trocar o número real a qualquer momento sem alterar o site</div>
+        <div>🔴 <strong>Padrão identificado:</strong> Verificamos dezenas de sites fraudulentos — quase todos usam este mesmo tipo de link</div>
+      </div>
+      <div style="margin-top:.75rem;padding:.6rem .9rem;background:rgba(255,61,87,.1);border-radius:6px;font-family:var(--mono);font-size:10px;color:var(--red)">
+        ⚠️ Antes de qualquer contato: peça o número completo com DDD pelo chat e confirme se é um DDD de São Paulo (11, 12, 13, 14, 15, 16, 17, 18 ou 19). Golpistas costumam ter DDD de outros estados.
+      </div>
+    </div>`;
+  }
 
   // BLOCO 2 — Sinais críticos
   if(indiciosAtivos.length > 0){
