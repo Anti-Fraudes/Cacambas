@@ -1206,6 +1206,9 @@ function calcScore(d){
   // CNPJ
   if(!d.cnpj){ s+=25; ch.push({t:'bad',msg:'Sem CNPJ visível no site'}); }
   else if(/inv[aá]lido|mascara|falso/i.test(d.cnpj)){ s+=35; ch.push({t:'bad',msg:`CNPJ suspeito: ${d.cnpj}`}); }
+  else if(/desde 19[0-9]{2}|desde 20[01][0-9]|ativ.*19[0-9]{2}|diverge|divergên|empresa ativa desde/i.test(d.cnpj)){
+    s+=35; ch.push({t:'bad',msg:`⚠️ CNPJ com inconsistência: ${d.cnpj} — empresa antiga com site recente é forte indício de uso indevido de CNPJ alheio`});
+  }
   else{ ch.push({t:'ok',msg:`CNPJ: ${d.cnpj}`}); }
 
   // WhatsApp sem número visível (padrão wa.me/message/) — SINAL GRAVE
@@ -1236,8 +1239,12 @@ function calcScore(d){
       const n=parseInt(ddd[1]);
       const dddssp=[11,12,13,14,15,16,17,18,19];
       // Verifica se o domínio ou conteúdo indica SP
-      const indicaSP = /sp|sao.paulo|são.paulo|sampa/.test(dom) ||
-                       /sp|são paulo|sao paulo/i.test(d.conteudo||'');
+      // Verifica se o domínio indica explicitamente outra cidade/estado
+      const indicaOutroEstado = /bh|minas|mineiro|rio.*jan|rj|curitiba|curitib|parana|pr[^a-z]|goian|goias|baiano|bahia|nordest|ceara|pernambuco|recife/i.test(dom);
+      const indicaSP = !indicaOutroEstado && (
+        /sp|sao.paulo|são.paulo|sampa/.test(dom) ||
+        /sp|são paulo|sao paulo/i.test(d.conteudo||'')
+      );
       if(!dddssp.includes(n) && indicaSP){
         s+=30; ch.push({t:'bad',msg:`WhatsApp DDD ${n} (fora de SP) — site indica atender SP mas número é de outro estado`});
       } else if(!dddssp.includes(n)){
